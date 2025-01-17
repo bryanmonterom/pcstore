@@ -1,5 +1,6 @@
-const Home = () => {
+
+const HomePage = () => {
   return ( <>PCStore</> );
 }
  
-export default Home;
+export default HomePage;
