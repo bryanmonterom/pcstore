@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { APP_NAME } from "@/lib/constants";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 
 const NotFoundPage = () => {
     return (<div className="flex flex-col items-center justify-center min-h-screen">
@@ -12,7 +13,7 @@ const NotFoundPage = () => {
         <p className="text-destructive">
             Could not find requested page
         </p>
-        <Button variant='outline' className="mt-4 ml-2" onClick={()=> (window.location.href='/')}>
+        <Button variant='outline' className="mt-4 ml-2" onClick={()=> (redirect('/'))}>
             Back to home
         </Button>
         </div>
