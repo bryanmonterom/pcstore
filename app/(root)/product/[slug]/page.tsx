@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getProductBySlug } from '../../../../lib/actions/product-actions';
+import { getProductBySlug } from '../../../../lib/actions/product.actions';
 import ProductPrice from '@/components/ui/shared/product/product-price';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
