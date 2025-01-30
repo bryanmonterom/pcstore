@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import {formatNumberWithDecimal} from './utils.js'
+import {formatNumberWithDecimal} from './utils'
 
 const currency = z.string().refine((value)=> /^\d+(\.\d{2})?$/.test(formatNumberWithDecimal(Number(value))), 'Price must have exactly 2 decimal places')
 
