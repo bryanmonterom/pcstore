@@ -10,12 +10,12 @@ import { redirect } from 'next/navigation';
 export const metadata: Metadata = {
   title: 'Sign In',
 };
-const SignInPage = async () => {
+const SignInPage = async (props: {searchParams: Promise<{callBackUrl:string}>}) => {
 
-    console.log('In the page')
+    const {callBackUrl} = await props.searchParams
     const session = await auth();
     if(session){
-        redirect('/')
+        redirect(callBackUrl || '/')
     }
 
   return (
