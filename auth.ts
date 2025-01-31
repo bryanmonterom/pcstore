@@ -90,7 +90,6 @@ export const config = {
 
       if (!request.cookies.get(COOKIE_NAMES.SESSION_CART_ID)) {
         //Create the cookie
-
         const sessionCartId = crypto.randomUUID();
         // clone req headers to then add the new cookie
         const newRequestHeaders = new Headers(request.headers);
