@@ -36,3 +36,14 @@ export async function formatError(error: any) {
       : JSON.stringify(error);
   }
 }
+
+// round number function
+export function roundNumber(num: number | string): number {
+  if (typeof num === 'string') {
+    return Math.round((Number(num) + Number.EPSILON) * 100) / 100;
+  } else if (typeof num === 'number') {
+    return Math.round((num + Number.EPSILON) * 100) / 100;
+  } else {
+    throw new Error('Value is not a number or a string');
+  }
+}

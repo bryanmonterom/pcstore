@@ -5,6 +5,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { compareSync } from 'bcrypt-ts-edge';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { COOKIE_NAMES } from './lib/constants';
 
 export const config = {
   pages: {
@@ -87,7 +88,7 @@ export const config = {
     authorized({ request, auth }: any) {
       //Check for session cart cookie
 
-      if (!request.cookies.get('sessionCartId')) {
+      if (!request.cookies.get(COOKIE_NAMES.SESSION_CART_ID)) {
         //Create the cookie
 
         const sessionCartId = crypto.randomUUID();
@@ -97,7 +98,8 @@ export const config = {
         const response = NextResponse.next({
           request: { headers: newRequestHeaders },
         });
-        response.cookies.set('sessionCartId', sessionCartId);
+        response.cookies.set(COOKIE_NAMES.SESSION_CART_ID, sessionCartId);
+        return response;
       } else {
         return true;
       }

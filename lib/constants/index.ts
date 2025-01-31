@@ -14,3 +14,7 @@ export const signUpDefaultValues= {
     password:'',
     confirmPassword:'',
 }
+
+export const COOKIE_NAMES = {
+    SESSION_CART_ID: 'sessionCartId',
+  };
