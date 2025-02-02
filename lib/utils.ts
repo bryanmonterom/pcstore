@@ -47,3 +47,18 @@ export function roundNumber(num: number | string): number {
     throw new Error('Value is not a number or a string');
   }
 }
+
+const CURRENCY_FORMATTER = new Intl.NumberFormat('en-US', {
+  currency: 'USD',
+  style: 'currency',
+  minimumFractionDigits: 2,
+});
+
+export function formatCurrency(num: number | string | null) {
+  if (typeof num === 'string') {
+    return CURRENCY_FORMATTER.format(Number(num));
+  } else if (typeof num === 'number') {
+    return CURRENCY_FORMATTER.format(num);
+  }
+  return 'NaN';
+}

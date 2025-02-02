@@ -64,10 +64,27 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
     if (isRedirectError(error)) {
       throw error;
     }
-   formatError(error);
+    formatError(error);
     return {
       success: false,
-      message:  formatError(error)
+      message: formatError(error),
     };
+  }
+}
+
+export async function getUserById(userId: string) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if(!user) {
+      throw new Error('User not found');
+    }
+    return user;
+  } catch (error) {
+    return formatError(error);
   }
 }
