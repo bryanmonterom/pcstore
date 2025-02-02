@@ -1,4 +1,4 @@
-import { shippingAddress } from '../../types/index';
+import { ShippingAddress } from '../../types/index';
 export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'ProStore';
 export const APP_DESCRIPTION =
   process.env.NEXT_PUBLIC_APP_DESCRIPTION ||
@@ -24,7 +24,7 @@ export const COOKIE_NAMES = {
   SESSION_CART_ID: 'sessionCartId',
 };
 
-export const shippingAddressDefaultValues: shippingAddress = {
+export const shippingAddressDefaultValues: ShippingAddress = {
   fullName: 'John Doe',
   streetAddress: '123 Main St',
   city: 'Anytown',
