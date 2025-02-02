@@ -25,9 +25,9 @@ export const COOKIE_NAMES = {
 };
 
 export const shippingAddressDefaultValues: ShippingAddress = {
-  fullName: 'John Doe',
-  streetAddress: '123 Main St',
-  city: 'Anytown',
-  postalCode: '123456',
-  country: 'USA',
+  fullName: '',
+  streetAddress: '',
+  city: '',
+  postalCode: '',
+  country: '',
 };
