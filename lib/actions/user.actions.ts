@@ -1,12 +1,17 @@
 'use server';
 
-import { shippingAddressSchema, signInFormShema, signUpFormShema } from '../validators';
+import {
+  paymentMethodSchema,
+  shippingAddressSchema,
+  signInFormShema,
+  signUpFormShema,
+} from '../validators';
 import { auth, signIn, signOut } from '@/auth';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { hashSync } from 'bcrypt-ts-edge';
 import { prisma } from '@/db/prisma';
 import { formatError } from '../utils';
-import { ShippingAddress } from '@/types';
+import { PaymentMethod, ShippingAddress } from '@/types';
 
 //sign in the user with credentials
 export default async function signInWithCredentials(
@@ -98,7 +103,6 @@ export async function updateUserAddress(data: ShippingAddress) {
       where: { id: session?.user?.id },
     });
 
-
     if (!currentUser) {
       throw new Error('User not found');
     }
@@ -106,14 +110,37 @@ export async function updateUserAddress(data: ShippingAddress) {
     const address = shippingAddressSchema.parse(data);
 
     await prisma.user.update({
-      where:{id: currentUser.id},
-      data:{address}
-    })
+      where: { id: currentUser.id },
+      data: { address },
+    });
 
-    return {sucess:true, message:'Address updated succesfully'}
-
+    return { sucess: true, message: 'Address updated succesfully' };
   } catch (error) {
     formatError(error);
+    return { success: false, message: formatError(error) };
+  }
+}
+
+export async function updateUserPaymentMethod(method: PaymentMethod) {
+  try {
+    const session = await auth();
+    console.log(method)
+    const currentUser = await prisma.user.findFirst({
+      where: { id: session?.user?.id },
+    });
+
+    if (!currentUser) {
+      throw new Error('User not found');
+    }
+    method.type = method.type.trim();
+    const paymentMethod = paymentMethodSchema.parse(method);
+    await prisma.user.update({
+      where: { id: currentUser.id },
+      data: { paymentMethod: paymentMethod.type },
+    });
+
+    return { success: true, message: 'Payment method updated succesfully' };
+  } catch (error) {
     return { success: false, message: formatError(error) };
   }
 }
