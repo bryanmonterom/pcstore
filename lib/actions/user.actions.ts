@@ -124,7 +124,6 @@ export async function updateUserAddress(data: ShippingAddress) {
 export async function updateUserPaymentMethod(method: PaymentMethod) {
   try {
     const session = await auth();
-    console.log(method)
     const currentUser = await prisma.user.findFirst({
       where: { id: session?.user?.id },
     });

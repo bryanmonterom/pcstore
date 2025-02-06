@@ -3,8 +3,7 @@ import { getMyCart } from '@/lib/actions/cart.actions';
 import { getUserById } from '@/lib/actions/user.actions';
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { use } from 'react';
-import { PaymentMethod, ShippingAddress, Order } from '../../../types/index';
+import {  ShippingAddress,  } from '../../../types/index';
 import CheckOutSteps from '@/components/ui/shared/product/checkout-steps';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
@@ -19,6 +18,7 @@ import {
 } from '@/components/ui/table';
 import { formatCurrency } from '../../../lib/utils';
 import Image from 'next/image';
+import PlacerOrderForm from './place-order-form';
 
 export const metadata: Metadata = {
   title: 'Place Order',
@@ -34,7 +34,6 @@ const PlaceOrderPage = async () => {
   }
 
   const user = await getUserById(userId);
-  console.log(user);
   if (!cart || cart.items.length === 0) {
     redirect('/cart');
   }
@@ -138,6 +137,8 @@ const PlaceOrderPage = async () => {
                 <div>Total</div>
                 <div>{formatCurrency(cart.totalPrice)}</div>
               </div>
+            <PlacerOrderForm/>
+
             </CardContent>
           </Card>
         </div>
