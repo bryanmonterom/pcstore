@@ -22,7 +22,6 @@ test('Create paypal Order', async () =>{
 })
 
 test('Simulate capturing a payment from an order', async () =>{
-    const price = 10.0
     const orderId = '100';
 
     const mockCapturePayment = jest.spyOn(paypal ,'capturePayment').mockResolvedValue({status:'COMPLETED'})
