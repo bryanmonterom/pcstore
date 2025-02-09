@@ -8,7 +8,6 @@ import { insertOrderSchema } from '../validators';
 import { prisma } from '@/db/prisma';
 import { auth } from '@/auth';
 import { CartItem, ShippingAddress } from '@/types';
-import { Order, OrderItem } from '../../types/index';
 
 export async function createOrder() {
   try {
@@ -59,40 +58,40 @@ export async function createOrder() {
       paymentResult: '', // Add a default value for paymentResult
     });
 
-
     //Create a transaction to create order and order items in db
-   const inserterOrderId =  await prisma.$transaction(async (tx) => {
+    const inserterOrderId = await prisma.$transaction(async (tx) => {
+      const insertedOrder = await tx.order.create({ data: order });
 
-      const insertedOrder = await tx.order.create({ data: order as Order });
-
-      console.log(insertedOrder)
+      console.log(insertedOrder);
       for (const item of cart.items as CartItem[]) {
         await tx.orderItem.create({
-          data: { ...item, price: item.price, orderId: insertedOrder.id }
+          data: { ...item, price: item.price, orderId: insertedOrder.id },
         });
       }
 
       //Clear cart
 
       await tx.cart.update({
-        where: {id: cart.id},
-        data:{
-            items:[],
-            totalPrice: 0,
-            taxPrice:0,
-            itemsPrice:0, 
-            shippingPrice: 0
-        }
-      })
+        where: { id: cart.id },
+        data: {
+          items: [],
+          totalPrice: 0,
+          taxPrice: 0,
+          itemsPrice: 0,
+          shippingPrice: 0,
+        },
+      });
       return insertedOrder.id;
     });
 
-    if(!inserterOrderId) throw new Error("Order not created")
+    if (!inserterOrderId) throw new Error('Order not created');
 
-    return { sucess: true, message: "Order created", redirectTo:`/order/${inserterOrderId}` };
-
+    return {
+      sucess: true,
+      message: 'Order created',
+      redirectTo: `/order/${inserterOrderId}`,
+    };
   } catch (error) {
-
     if (isRedirectError(error)) {
       throw error;
     }
@@ -100,15 +99,14 @@ export async function createOrder() {
   }
 }
 
-export async function getOrderById(orderId: string){
+export async function getOrderById(orderId: string) {
   const data = await prisma.order.findFirst({
-    where:{id: orderId},
-    include:{
-      OrderItem: true,
-      user:{ select:{name:true, email:true}}
-    }
-  })
-  
-  return convertToPlainObject(data);
+    where: { id: orderId },
+    include: {
+      orderItems: true,
+      user: { select: { name: true, email: true } },
+    },
+  });
 
+  return convertToPlainObject(data);
 }
