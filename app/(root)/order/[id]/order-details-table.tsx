@@ -13,12 +13,20 @@ import { formatCurrency, formatDateTime, formatId } from '@/lib/utils';
 import { Order } from '@/types';
 import Link from 'next/link';
 import Image from 'next/image';
-
+import {
+  PayPalButtons,
+  PayPalScriptProvider,
+  usePayPalScriptReducer,
+} from '@paypal/react-paypal-js';
+import { approvePaypalOrder, createPayPalOrder } from '@/lib/actions/order.action';
+import { useToast } from '@/hooks/use-toast';
 
 const OrderDetailsTable = ({
   order,
+  paypalClientId,
 }: {
   order: Omit<Order, 'paymentResult'>;
+  paypalClientId: string;
 }) => {
   const {
     id,
@@ -35,44 +43,93 @@ const OrderDetailsTable = ({
     deliveredAt,
   } = order;
 
+  const PrintLoadingState = () => {
+    const [{ isPending, isRejected }] = usePayPalScriptReducer();
+
+    let status = '';
+
+    if (isPending) {
+      status = 'Loading paypal ...';
+    } else if (isRejected) {
+      status = 'Error loading paypal';
+    }
+    return status;
+  };
+
+  const { toast } = useToast();
+
+  const handleCreatePaypalOrder = async () => {
+    const res = await createPayPalOrder(id);
+ 
+    if(!res.success){
+      toast({
+        variant:'destructive',
+        description: res.message
+      })
+    }
+
+    console.log(res.data) 
+
+    return res.data;
+
+  };
+
+  
+  const handleApprovePayPalOrder = async (data: { orderID: string }) => {
+    console.log("******************************** aqui *************************")
+    console.log(data) 
+
+      const res = await approvePaypalOrder(order.id, data);
+      console.log(res) 
+
+      toast({
+        variant:res.success ? 'default' : 'destructive',
+        description: res.message
+      })
+
+  };
+
+  // createOrder={handleCreatePaypalOrder}
+  // onApprove={handleApprovePaypalOrder}
+
   return (
     <>
-      <h1 className='py-4 text-2xl'>Order {formatId(id)}</h1>
-      <div className='grid md:grid-cols-3 md:gap-5'>
-        <div className='col-span-2 space-4-y overlow-x-auto'>
+      <h1 className="py-4 text-2xl">Order {formatId(id)}</h1>
+      <div className="grid md:grid-cols-3 md:gap-5">
+        <div className="col-span-2 space-4-y overlow-x-auto">
           <Card>
-            <CardContent className='p-4 gap-4'>
-              <h2 className='text-xl pb-4'>Payment Method</h2>
-              <p className='mb-2'>{paymentMethod}</p>
+            <CardContent className="p-4 gap-4">
+              <h2 className="text-xl pb-4">Payment Method</h2>
+              <p className="mb-2">{paymentMethod}</p>
               {isPaid ? (
-                <Badge variant='secondary'>
+                <Badge variant="secondary">
                   Paid at {formatDateTime(paidAt!).dateTime}
                 </Badge>
               ) : (
-                <Badge variant='destructive'>Not paid</Badge>
+                <Badge variant="destructive">Not paid</Badge>
               )}
             </CardContent>
           </Card>
-          <Card className='my-2'>
-            <CardContent className='p-4 gap-4'>
-              <h2 className='text-xl pb-4'>Shipping Address</h2>
+          <Card className="my-2">
+            <CardContent className="p-4 gap-4">
+              <h2 className="text-xl pb-4">Shipping Address</h2>
               <p>{shippingAddress.fullName}</p>
-              <p className='mb-2'>
+              <p className="mb-2">
                 {shippingAddress.streetAddress}, {shippingAddress.city}
                 {shippingAddress.postalCode}, {shippingAddress.country}
               </p>
               {isDelivered ? (
-                <Badge variant='secondary'>
+                <Badge variant="secondary">
                   Delivered at {formatDateTime(deliveredAt!).dateTime}
                 </Badge>
               ) : (
-                <Badge variant='destructive'>Not Delivered</Badge>
+                <Badge variant="destructive">Not Delivered</Badge>
               )}
             </CardContent>
           </Card>
           <Card>
-            <CardContent className='p-4 gap-4'>
-              <h2 className='text-xl pb-4'>Order Items</h2>
+            <CardContent className="p-4 gap-4">
+              <h2 className="text-xl pb-4">Order Items</h2>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -87,7 +144,7 @@ const OrderDetailsTable = ({
                       <TableCell>
                         <Link
                           href={`/product/{item.slug}`}
-                          className='flex items-center'
+                          className="flex items-center"
                         >
                           <Image
                             src={item.image}
@@ -95,13 +152,13 @@ const OrderDetailsTable = ({
                             width={50}
                             height={50}
                           />
-                          <span className='px-2'>{item.name}</span>
+                          <span className="px-2">{item.name}</span>
                         </Link>
                       </TableCell>
                       <TableCell>
-                        <span className='px-2'>{item.quantity}</span>
+                        <span className="px-2">{item.quantity}</span>
                       </TableCell>
-                      <TableCell className='text-right'>
+                      <TableCell className="text-right">
                         ${item.price}
                       </TableCell>
                     </TableRow>
@@ -113,23 +170,36 @@ const OrderDetailsTable = ({
         </div>
         <div>
           <Card>
-            <CardContent className='p-4 gap-4 space-y-4'>
-              <div className='flex justify-between'>
+            <CardContent className="p-4 gap-4 space-y-4">
+              <div className="flex justify-between">
                 <div>Items</div>
                 <div>{formatCurrency(itemsPrice)}</div>
               </div>
-              <div className='flex justify-between'>
+              <div className="flex justify-between">
                 <div>Tax</div>
                 <div>{formatCurrency(taxPrice)}</div>
               </div>
-              <div className='flex justify-between'>
+              <div className="flex justify-between">
                 <div>Shipping</div>
                 <div>{formatCurrency(shippingPrice)}</div>
               </div>
-              <div className='flex justify-between'>
+              <div className="flex justify-between">
                 <div>Total</div>
                 <div>{formatCurrency(totalPrice)}</div>
               </div>
+
+              {/*Paypal Payment*/}
+              {!isPaid && paymentMethod === 'Paypal' && (
+                <div>
+                  <PayPalScriptProvider options={{ clientId: paypalClientId }}>
+                    <PrintLoadingState />
+                    <PayPalButtons
+                      createOrder={handleCreatePaypalOrder}
+                      onApprove={handleApprovePayPalOrder}
+                    ></PayPalButtons>
+                  </PayPalScriptProvider>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
