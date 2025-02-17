@@ -112,7 +112,8 @@ export const config = {
         }
       }
 
-      // Handle session updates
+
+      // Handle session updates logic
       if (session?.user.name && trigger === 'update') {
         token.name = session.user.name;
       }

@@ -11,7 +11,7 @@ import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { hashSync } from 'bcrypt-ts-edge';
 import { prisma } from '@/db/prisma';
 import { formatError } from '../utils';
-import { PaymentMethod, ShippingAddress } from '@/types';
+import { ShippingAddress } from '@/types';
 
 //sign in the user with credentials
 export default async function signInWithCredentials(
@@ -139,6 +139,30 @@ export async function updateUserPaymentMethod(method: PaymentMethod) {
     });
 
     return { success: true, message: 'Payment method updated succesfully' };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
+  }
+}
+
+export async function updateUserProfile(user: { name: string; email: string }) {
+  try {
+    const session = await auth();
+    const currentUser = await prisma.user.findFirst({
+      where: { id: session?.user?.id },
+    });
+
+    if (!currentUser) {
+      throw new Error('User not found');
+    }
+
+    await prisma.user.update({
+      where: { id: currentUser.id },
+      data: {
+        name: user.name,
+      },
+    });
+
+    return { success: true, message: 'User updated' };
   } catch (error) {
     return { success: false, message: formatError(error) };
   }
