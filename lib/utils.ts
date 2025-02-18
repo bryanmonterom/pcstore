@@ -62,6 +62,13 @@ export function formatCurrency(num: number | string | null) {
   return 'NaN';
 }
 
+
+const NUMBER_FORMATTER = new Intl.NumberFormat('en-US')
+
+export function formatNumber (number:number){
+  return NUMBER_FORMATTER.format(number);
+}
+
 //shorten the UUID for aesthetic purposes
 export function formatId(id: string) {
   return `..${id.substring(id.length - 6)}`;
