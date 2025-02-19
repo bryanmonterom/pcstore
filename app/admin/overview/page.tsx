@@ -20,7 +20,7 @@ import Link from 'next/link';
 import Charts from './charts';
 import { requireAdmin } from '@/lib/auth-guard';
 
-export const metdata: Metadata = {
+export const metadata: Metadata = {
   title: 'Admin Dashboard',
 };
 

@@ -300,7 +300,6 @@ export async function getOrderSummary() {
     Array<{ month: string; totalSales: Prisma.Decimal }>
   >`SELECT to_char("createdAt", 'MM/YY') as "month", sum("totalPrice") as "totalSales" FROM "Order" GROUP BY to_char("createdAt", 'MM/YY')`;
 
-
   const salesData: SalesDataType = salesDataRaw.map((saleData) => ({
     month: saleData.month,
     totalSales: Number(saleData.totalSales),
@@ -318,5 +317,35 @@ export async function getOrderSummary() {
     take: 6,
   });
 
-  return { ordersCount, productsCount, usersCount, totalSales, latestSales, salesData };
+  return {
+    ordersCount,
+    productsCount,
+    usersCount,
+    totalSales,
+    latestSales,
+    salesData,
+  };
+}
+
+//get all orders
+export async function getAllOrders({
+  limit = PAGE_SIZE,
+  page,
+}: {
+  limit?: number;
+  page: number;
+}) {
+  const data = await prisma.order.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    skip: (page - 1) * limit,
+    include: { user: { select: { name: true } } },
+  });
+
+  const dataCount = await prisma.order.count();
+
+  return {
+    data, totalPages: Math.ceil(dataCount/limit),
+
+  }
 }

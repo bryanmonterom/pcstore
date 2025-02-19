@@ -11,7 +11,7 @@ import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { hashSync } from 'bcrypt-ts-edge';
 import { prisma } from '@/db/prisma';
 import { formatError } from '../utils';
-import { ShippingAddress } from '@/types';
+import { PaymentMethod, ShippingAddress } from '@/types';
 
 //sign in the user with credentials
 export default async function signInWithCredentials(
