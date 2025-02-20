@@ -1,14 +1,13 @@
 'use client';
+
 import { useToast } from '@/hooks/use-toast';
 import { productDefaultValues } from '@/lib/constants';
 import { insertProductSchema, updateProductSchema } from '@/lib/validators';
 import { Product } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { useForm, ControllerRenderProps, SubmitHandler } from 'react-hook-form';
+import { ControllerRenderProps, SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
-import Image from 'next/image';
-import { Button } from '../ui/button';
 import {
   Form,
   FormControl,
@@ -17,12 +16,16 @@ import {
   FormLabel,
   FormMessage,
 } from '../ui/form';
-import { Input } from '../ui/input';
 import slugify from 'slugify';
+import { Input } from '../ui/input';
+import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { createProduct, updateProduct } from '@/lib/actions/product.actions';
 import { UploadButton } from '@/lib/uploadthing';
 import { Card, CardContent } from '../ui/card';
+import Image from 'next/image';
+import { Checkbox } from '../ui/checkbox';
+
 const ProductForm = ({
   type,
   product,
@@ -34,6 +37,7 @@ const ProductForm = ({
 }) => {
   const router = useRouter();
   const { toast } = useToast();
+
   const form = useForm<z.infer<typeof insertProductSchema>>({
     resolver:
       type === 'Update'
@@ -44,10 +48,12 @@ const ProductForm = ({
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof insertProductSchema>> = async (
-    values,
+    values
   ) => {
+    // On Create
     if (type === 'Create') {
       const res = await createProduct(values);
+
       if (!res.success) {
         toast({
           variant: 'destructive',
@@ -55,12 +61,13 @@ const ProductForm = ({
         });
       } else {
         toast({
-          description: 'res.message',
+          description: res.message,
         });
         router.push('/admin/products');
       }
     }
 
+    // On Update
     if (type === 'Update') {
       if (!productId) {
         router.push('/admin/products');
@@ -68,6 +75,7 @@ const ProductForm = ({
       }
 
       const res = await updateProduct({ ...values, id: productId });
+
       if (!res.success) {
         toast({
           variant: 'destructive',
@@ -75,7 +83,7 @@ const ProductForm = ({
         });
       } else {
         toast({
-          description: 'res.message',
+          description: res.message,
         });
         router.push('/admin/products');
       }
@@ -83,19 +91,21 @@ const ProductForm = ({
   };
 
   const images = form.watch('images');
-  console.log(images)
+  const isFeatured = form.watch('isFeatured');
+  const banner = form.watch('banner');
 
   return (
     <Form {...form}>
       <form
-        className="space-y-8"
-        method="post"
+        method='POST'
         onSubmit={form.handleSubmit(onSubmit)}
+        className='space-y-8'
       >
-        <div className="flex flex-col md:flex-row gap-5">
+        <div className='flex flex-col md:flex-row gap-5'>
+          {/* Name */}
           <FormField
             control={form.control}
-            name="name"
+            name='name'
             render={({
               field,
             }: {
@@ -104,18 +114,19 @@ const ProductForm = ({
                 'name'
               >;
             }) => (
-              <FormItem className="w-full">
+              <FormItem className='w-full'>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter product name" {...field} />
+                  <Input placeholder='Enter product name' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+          {/* Slug */}
           <FormField
             control={form.control}
-            name="slug"
+            name='slug'
             render={({
               field,
             }: {
@@ -124,22 +135,22 @@ const ProductForm = ({
                 'slug'
               >;
             }) => (
-              <FormItem className="w-full">
-                <FormLabel>Slug</FormLabel>
+              <FormItem className='w-full'>
+                <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <div className="relative">
-                    <Input placeholder="Enter slug" {...field} />
+                  <div className='relative'>
+                    <Input placeholder='Enter slug' {...field} />
                     <Button
-                      type="button"
-                      className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-1 mt-2"
+                      type='button'
+                      className='bg-gray-500 hover:bg-gray-600 text-white px-4 py-1 mt-2'
                       onClick={() => {
                         form.setValue(
                           'slug',
-                          slugify(form.getValues('name'), { lower: true }),
+                          slugify(form.getValues('name'), { lower: true })
                         );
                       }}
                     >
-                      Generate slug
+                      Generate
                     </Button>
                   </div>
                 </FormControl>
@@ -148,10 +159,11 @@ const ProductForm = ({
             )}
           />
         </div>
-        <div className="flex flex-col md:flex-row gap-5">
+        <div className='flex flex-col md:flex-row gap-5'>
+          {/* Category */}
           <FormField
             control={form.control}
-            name="category"
+            name='category'
             render={({
               field,
             }: {
@@ -160,18 +172,19 @@ const ProductForm = ({
                 'category'
               >;
             }) => (
-              <FormItem className="w-full">
+              <FormItem className='w-full'>
                 <FormLabel>Category</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter product category" {...field} />
+                  <Input placeholder='Enter category' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+          {/* Brand */}
           <FormField
             control={form.control}
-            name="brand"
+            name='brand'
             render={({
               field,
             }: {
@@ -180,20 +193,21 @@ const ProductForm = ({
                 'brand'
               >;
             }) => (
-              <FormItem className="w-full">
+              <FormItem className='w-full'>
                 <FormLabel>Brand</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter product brand" {...field} />
+                  <Input placeholder='Enter brand' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
-        <div className="flex flex-col md:flex-row gap-5">
+        <div className='flex flex-col md:flex-row gap-5'>
+          {/* Price */}
           <FormField
             control={form.control}
-            name="price"
+            name='price'
             render={({
               field,
             }: {
@@ -202,18 +216,19 @@ const ProductForm = ({
                 'price'
               >;
             }) => (
-              <FormItem className="w-full">
+              <FormItem className='w-full'>
                 <FormLabel>Price</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter product price" {...field} />
+                  <Input placeholder='Enter product price' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+          {/* Stock */}
           <FormField
             control={form.control}
-            name="stock"
+            name='stock'
             render={({
               field,
             }: {
@@ -222,47 +237,47 @@ const ProductForm = ({
                 'stock'
               >;
             }) => (
-              <FormItem className="w-full">
+              <FormItem className='w-full'>
                 <FormLabel>Stock</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter product stock" {...field} />
+                  <Input placeholder='Enter stock' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
-
-        <div className=" upload-field flex flex-col md:flex-row gap-5">
+        <div className='upload-field flex flex-col md:flex-row gap-5'>
+          {/* Images */}
           <FormField
             control={form.control}
-            name="images"
+            name='images'
             render={() => (
-              <FormItem className="w-full">
+              <FormItem className='w-full'>
                 <FormLabel>Images</FormLabel>
                 <Card>
-                  <CardContent className="mt-2 min-h-48 space-y-2">
-                    <div className="flex-start space-x-2">
+                  <CardContent className='space-y-2 mt-2 min-h-48'>
+                    <div className='flex-start space-x-2'>
                       {images.map((image: string) => (
                         <Image
-                          className="w-20 h-20 object-cover object-center rounded-dm"
-                          src={image}
                           key={image}
-                          alt="image"
+                          src={image == '' ? "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=":image}
+                          alt='product image'
+                          className='w-20 h-20 object-cover object-center rounded-sm'
                           width={100}
                           height={100}
                         />
                       ))}
                       <FormControl>
                         <UploadButton
-                          endpoint="imageUploader"
+                          endpoint='imageUploader'
                           onClientUploadComplete={(res: { url: string }[]) => {
                             form.setValue('images', [...images, res[0].url]);
                           }}
                           onUploadError={(error: Error) => {
                             toast({
                               variant: 'destructive',
-                              description: `ERROR ${error.message}`,
+                              description: `ERROR! ${error.message}`,
                             });
                           }}
                         />
@@ -275,11 +290,58 @@ const ProductForm = ({
             )}
           />
         </div>
-        <div className=" upload-field "></div>
-        <div className="flex flex-col md:flex-row gap-5">
+        <div className='upload-field'>
+          {/* isFeatured */}
+          Featured Product
+          <Card>
+            <CardContent className='space-y-2 mt-2'>
+              <FormField
+                control={form.control}
+                name='isFeatured'
+                render={({ field }) => (
+                  <FormItem className='space-x-2 items-center'>
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel>Is Featured?</FormLabel>
+                  </FormItem>
+                )}
+              />
+              {isFeatured && banner && (
+                <Image
+                  src={banner}
+                  alt='banner image'
+                  className='w-full object-cover object-center rounded-sm'
+                  width={1920}
+                  height={680}
+                />
+              )}
+
+              {isFeatured && !banner && (
+                <UploadButton
+                  endpoint='imageUploader'
+                  onClientUploadComplete={(res: { url: string }[]) => {
+                    form.setValue('banner', res[0].url);
+                  }}
+                  onUploadError={(error: Error) => {
+                    toast({
+                      variant: 'destructive',
+                      description: `ERROR! ${error.message}`,
+                    });
+                  }}
+                />
+              )}
+            </CardContent>
+          </Card>
+        </div>
+        <div>
+          {/* Description */}
           <FormField
             control={form.control}
-            name="description"
+            name='description'
             render={({
               field,
             }: {
@@ -288,13 +350,13 @@ const ProductForm = ({
                 'description'
               >;
             }) => (
-              <FormItem className="w-full">
+              <FormItem className='w-full'>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Enter description"
+                    placeholder='Enter product description'
+                    className='resize-none'
                     {...field}
-                    className="resize-none"
                   />
                 </FormControl>
                 <FormMessage />
@@ -302,15 +364,14 @@ const ProductForm = ({
             )}
           />
         </div>
-
         <div>
           <Button
-            type="submit"
-            size="lg"
+            type='submit'
+            size='lg'
             disabled={form.formState.isSubmitting}
-            className="w-full button col-span-2"
+            className='button col-span-2 w-full'
           >
-            {form.formState.isSubmitting ? 'Submitting ...' : `${type} Product`}
+            {form.formState.isSubmitting ? 'Submitting' : `${type} Product`}
           </Button>
         </div>
       </form>
