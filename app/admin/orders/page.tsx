@@ -1,4 +1,4 @@
-import { getAllOrders } from '@/lib/actions/order.action';
+import { deleteOrder, getAllOrders } from '@/lib/actions/order.action';
 import { requireAdmin } from '@/lib/auth-guard';
 import { Metadata } from 'next';
 import {
@@ -13,6 +13,7 @@ import Link from 'next/link';
 import Pagination from '@/components/ui/shared/product/pagination';
 import { formatCurrency, formatDateTime, formatId } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import DeleteDialog from '@/components/ui/shared/delete-dialog';
 
 export const metadata: Metadata = {
   title: 'Admin Orders',
@@ -64,6 +65,7 @@ const AdminOrderPage = async (props: {
                   <Button asChild variant="outline" size="sm">
                     <Link href={`/order/${order.id}`}>Details</Link>
                   </Button>
+                  <DeleteDialog id={order.id} action={deleteOrder}></DeleteDialog>
                 </TableCell>
               </TableRow>
             ))}
