@@ -345,21 +345,52 @@ export async function getAllOrders({
   const dataCount = await prisma.order.count();
 
   return {
-    data, totalPages: Math.ceil(dataCount/limit),
+    data,
+    totalPages: Math.ceil(dataCount / limit),
+  };
+}
 
+//delete orders
+export async function deleteOrder(id: string) {
+  try {
+    await prisma.order.delete({ where: { id } });
+    revalidatePath('/admin/orders');
+    return { success: true, message: 'Order deleted succesfully' };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
   }
 }
 
-
-//delete orders
-export async function deleteOrder(id:string){
+export async function updateOrderToPaidCod(orderId: string) {
   try {
-
-    await prisma.order.delete({where:{id}})
-    revalidatePath('/admin/orders');
-    return {success:true, message: 'Order deleted succesfully'}
-
+    await updateOrderToPaid({ orderId });
+    revalidatePath(`/order/${orderId}`);
+    return { sucess: true, message: 'Order mark as paid' };
   } catch (error) {
-    return {success:false, message: formatError(error)}
+    return { sucess: false, message: formatError(error) };
+  }
+}
+export async function deliverOrder(orderId: string) {
+  try {
+    const order = await prisma.order.findFirst({
+      where: { id: orderId },
+    });
+
+    if (!order) {
+      throw new Error('Order not found');
+    }
+    if (!order.isPaid) throw new Error('Order not paid');
+
+    await prisma.order.update({
+      where: { id: orderId },
+      data: {
+        deliveredAt: new Date(),
+        isDelivered: true,
+      },
+    });
+    revalidatePath(`/order/${orderId}`);
+    return { sucess: true, message: 'Order marked as delivered' };
+  } catch (error) {
+    return { sucess: false, message: formatError(error) };
   }
 }
