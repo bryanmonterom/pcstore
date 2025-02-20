@@ -101,3 +101,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+/* Upload thing textoverride */
+.html.dark .upload-field .text-white {
+  color:#ffffff !important
+}
+
+.upload-field .text-white{
+  color:#000 !important
+}
