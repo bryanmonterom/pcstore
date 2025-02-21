@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { getAllUsers } from '@/lib/actions/user.actions';
+import { deleteUser, getAllUsers } from '@/lib/actions/user.actions';
 import { formatId } from '@/lib/utils';
 import { Metadata } from 'next';
 import Link from 'next/link';
@@ -44,14 +44,21 @@ const AdminUsersPage = async (props: {
                 <TableCell>{formatId(user.id)}</TableCell>
                 <TableCell>{user.name}</TableCell>
                 <TableCell>{user.email}</TableCell>
-                <TableCell>{
-                    
-                    user.role === 'user' ? (<Badge variant='secondary'>{user.role}</Badge>) : (<Badge variant='default'>{user.role}</Badge>)}</TableCell>
+                <TableCell>
+                  {user.role === 'user' ? (
+                    <Badge variant="secondary">{user.role}</Badge>
+                  ) : (
+                    <Badge variant="default">{user.role}</Badge>
+                  )}
+                </TableCell>
                 <TableCell>
                   <Button asChild variant="outline" size="sm">
                     <Link href={`/admin/users/${user.id}`}>Edit</Link>
                   </Button>
-                  {/* <DeleteDialog id={user.id} action={()=>{}}></DeleteDialog> */}
+                  <DeleteDialog
+                    id={user.id}
+                    action={deleteUser}
+                  ></DeleteDialog>
                 </TableCell>
               </TableRow>
             ))}
