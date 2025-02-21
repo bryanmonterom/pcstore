@@ -12,6 +12,7 @@ import { hashSync } from 'bcrypt-ts-edge';
 import { prisma } from '@/db/prisma';
 import { formatError } from '../utils';
 import { PaymentMethod, ShippingAddress } from '@/types';
+import { PAGE_SIZE } from '../constants';
 
 //sign in the user with credentials
 export default async function signInWithCredentials(
@@ -166,4 +167,21 @@ export async function updateUserProfile(user: { name: string; email: string }) {
   } catch (error) {
     return { success: false, message: formatError(error) };
   }
+}
+
+//get all users
+export async function getAllUsers({
+  limit = PAGE_SIZE,
+  page,
+}: {
+  limit?: number;
+  page: number;
+}) {
+  const data = await prisma.user.findMany({
+    orderBy: { createdAt: 'desc' },
+    skip: (page - 1) * limit,
+  });
+
+  const dataCount = await prisma.user.count();
+  return { totalPages: dataCount / limit, data };
 }
