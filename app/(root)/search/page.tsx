@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/ui/shared/product/product-card';
 import {
   getAllProducts,
@@ -27,6 +28,8 @@ const prices = [
     value: '501-1000',
   },
 ];
+
+const ratings = [4, 3, 2, 1];
 
 const SearchPage = async (props: {
   searchParams: Promise<{
@@ -111,11 +114,19 @@ const SearchPage = async (props: {
             ))}
           </ul>
         </div>
-        {/* {Category} */}
+        {/* {Prices} */}
         <div className="text-xl mb-2 mt-8">Prices</div>
-            <div>
-            <ul className="space-y-1">
+        <div>
+          <ul className="space-y-1">
             <li>
+              <Link
+                className={`${
+                  price === 'all' || (category === '' && 'font-bold')
+                }`}
+                href={getFilterUrl({ p: 'all' })}
+              >
+                Any
+              </Link>
             </li>
             {prices.map((x) => (
               <li key={x.name}>
@@ -128,9 +139,56 @@ const SearchPage = async (props: {
               </li>
             ))}
           </ul>
-            </div>
+        </div>
+        <div className="text-xl mb-2 mt-8"> Customer Ratings</div>
+        <div>
+          <ul className="space-y-1">
+            <li>
+              <Link
+                className={`${
+                  rating === 'all' || (rating === '' && 'font-bold')
+                }`}
+                href={getFilterUrl({ r: 'all' })}
+              >
+                Any
+              </Link>
+            </li>
+            {ratings.map((x) => (
+              <li key={x}>
+                <Link
+                  className={`${x.toString() === rating && 'font-bold'}`}
+                  href={getFilterUrl({ r: x.toString() })}
+                >
+                  {`${x} stars & up`}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
       <div className="md:col-span-4 space-y-4 ">
+        <div className="flex-between flex-col-my-4 md:flex-row">
+          <div className="flex items-center">
+            {q !== 'all' && q !== '' && 'Query: ' + q}
+            {category !== 'all' && category !== '' && ' Category: ' + category}
+            {price !== 'all' && price !== '' && ' Price: ' + q}
+            {rating !== 'all' &&
+              rating !== '' &&
+              ' Rating : ' + rating + ' stars and up'}
+              &nbsp;
+              {
+                (q !=='all' && q!=='') ||
+                (category !=='all' && category!=='') ||
+                (price !=='all' && price!=='') ||
+                (rating !=='all' && rating!=='')  ? (<Button variant={'link'} asChild>
+                  <Link href='/search'>Clear</Link>
+                </Button>) : (null)
+              }
+          </div>
+          <div>
+            {/* {sort} */}
+          </div>
+        </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {products.data.length === 0 && <div>No products found</div>}
           {products.data.map((product) => (
