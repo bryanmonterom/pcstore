@@ -30,11 +30,8 @@ export async function getProductId(id: string) {
     where: { id },
   });
 
-
-
-  return convertToPlainObject(data)
+  return convertToPlainObject(data);
 }
-
 
 export async function getAllProducts({
   query,
@@ -181,12 +178,22 @@ export async function updateProduct(data: z.infer<typeof updateProductSchema>) {
   }
 }
 
-export async function getAllCategories(){
-
+export async function getAllCategories() {
   const data = await prisma.product.groupBy({
     by: ['category'],
-    _count:true
-  })
+    _count: true,
+  });
 
   return data;
+}
+
+//get featured products
+export async function getFeaturedProducts() {
+  const data = await prisma.product.findMany({
+    where: { isFeatured: true },
+    orderBy:{createdAt:'desc'},
+    take:4
+  });
+
+  return convertToPlainObject(data)
 }
