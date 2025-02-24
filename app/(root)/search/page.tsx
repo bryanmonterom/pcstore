@@ -20,6 +20,31 @@ const SearchPage = async (props: {
     page = '1',
   } = await props.searchParams;
 
+  //Build filter url
+  const getFilterUrl = ({
+    c,
+    s,
+    p,
+    r,
+    pg,
+  }: {
+    c?: string;
+    s?: string;
+    p?: string;
+    r?: string;
+    pg?: string;
+  }) => {
+    const params = { q, category, price, rating, sort, page };
+
+    if (c) params.category = c;
+    if (s) params.sort = s;
+    if (p) params.price = p;
+    if (r) params.rating = r;
+    if (pg) params.page = pg;
+
+    return `/search/?${new URLSearchParams(params).toString()}`;
+  };
+
   const products = await getAllProducts({
     query: q,
     category,
@@ -28,19 +53,19 @@ const SearchPage = async (props: {
     sort,
     page: Number(page),
   });
-  return <div className='grid md:grid-cols-5 md-grap-5'>
-    <div className="filter-links">
-        {/* {Filter} */}
-    </div>
-    <div className='md:col-span-4 space-y-4 '>
+  return (
+    <div className="grid md:grid-cols-5 md-grap-5">
+      <div className="filter-links">{/* {Filter} */}</div>
+      <div className="md:col-span-4 space-y-4 ">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            {products.data.length === 0 &&<div>No products found</div>}
-            {products.data.map((product)=>(
-                <ProductCard product={product} key = {product.id}></ProductCard>
-            ))}
+          {products.data.length === 0 && <div>No products found</div>}
+          {products.data.map((product) => (
+            <ProductCard product={product} key={product.id}></ProductCard>
+          ))}
         </div>
+      </div>
     </div>
-  </div>;
+  );
 };
 
 export default SearchPage;
