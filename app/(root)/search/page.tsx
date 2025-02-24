@@ -1,5 +1,32 @@
 import ProductCard from '@/components/ui/shared/product/product-card';
-import { getAllProducts } from '@/lib/actions/product.actions';
+import {
+  getAllProducts,
+  getAllCategories,
+} from '@/lib/actions/product.actions';
+import Link from 'next/link';
+
+const prices = [
+  {
+    name: '$1 to $50',
+    value: '1-50',
+  },
+  {
+    name: '$51 to $100',
+    value: '51-100',
+  },
+  {
+    name: '$101 to $200',
+    value: '101-200',
+  },
+  {
+    name: '$201 to $500',
+    value: '201-500',
+  },
+  {
+    name: '$501 to $1000',
+    value: '501-1000',
+  },
+];
 
 const SearchPage = async (props: {
   searchParams: Promise<{
@@ -45,6 +72,8 @@ const SearchPage = async (props: {
     return `/search/?${new URLSearchParams(params).toString()}`;
   };
 
+  const categories = await getAllCategories();
+
   const products = await getAllProducts({
     query: q,
     category,
@@ -55,7 +84,52 @@ const SearchPage = async (props: {
   });
   return (
     <div className="grid md:grid-cols-5 md-grap-5">
-      <div className="filter-links">{/* {Filter} */}</div>
+      <div className="filter-links">
+        {/* {Category} */}
+        <div className="text-xl mb-2 mt-3">Department</div>
+        <div>
+          <ul className="space-y-1">
+            <li>
+              <Link
+                className={`${
+                  category === 'all' || (category === '' && 'font-bold')
+                }`}
+                href={getFilterUrl({ c: 'all' })}
+              >
+                Any
+              </Link>
+            </li>
+            {categories.map((x) => (
+              <li key={x.category}>
+                <Link
+                  className={`${x.category === category && 'font-bold'}`}
+                  href={getFilterUrl({ c: x.category })}
+                >
+                  {x.category}{' '}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+        {/* {Category} */}
+        <div className="text-xl mb-2 mt-8">Prices</div>
+            <div>
+            <ul className="space-y-1">
+            <li>
+            </li>
+            {prices.map((x) => (
+              <li key={x.name}>
+                <Link
+                  className={`${x.value === price && 'font-bold'}`}
+                  href={getFilterUrl({ p: x.value })}
+                >
+                  {x.name}{' '}
+                </Link>
+              </li>
+            ))}
+          </ul>
+            </div>
+      </div>
       <div className="md:col-span-4 space-y-4 ">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {products.data.length === 0 && <div>No products found</div>}
