@@ -6,6 +6,35 @@ import {
 } from '@/lib/actions/product.actions';
 import Link from 'next/link';
 
+export async function generateMetadata(props: {
+  searchParams: Promise<{
+    q: string;
+    price: string;
+    category: string;
+    rating: string;
+  }>;
+}) {
+  const {
+    q = 'all',
+    price = 'all',
+    category = 'all',
+    rating = 'all',
+  } = await props.searchParams;
+  
+  const isQuerySet = q && q !== 'all' && q.trim() !== '';
+  const isCategorySet = category && category !== 'all' && category.trim() !== '';
+  const isPriceSet = price && price !== 'all' && price.trim() !== '';
+  const isRatingSet = rating && rating !== 'all' && rating.trim() !== '';
+
+  if(isQuerySet || isCategorySet || isPriceSet || isRatingSet){
+    return {
+      title: `Search ${isQuerySet ? q : ''} ${isCategorySet ? ` Category: ${category}` : ''} ${isPriceSet ? ` Price: ${price}` : ''} ${isRatingSet ? ` Rating: ${rating}` : ''}`
+    }
+  }
+
+  return { title: 'Search' };
+}
+
 const prices = [
   {
     name: '$1 to $50',
@@ -30,6 +59,8 @@ const prices = [
 ];
 
 const ratings = [4, 3, 2, 1];
+
+const sortBy = ['newest', 'lowest', 'highest', 'rating'];
 
 const SearchPage = async (props: {
   searchParams: Promise<{
@@ -175,18 +206,28 @@ const SearchPage = async (props: {
             {rating !== 'all' &&
               rating !== '' &&
               ' Rating : ' + rating + ' stars and up'}
-              &nbsp;
-              {
-                (q !=='all' && q!=='') ||
-                (category !=='all' && category!=='') ||
-                (price !=='all' && price!=='') ||
-                (rating !=='all' && rating!=='')  ? (<Button variant={'link'} asChild>
-                  <Link href='/search'>Clear</Link>
-                </Button>) : (null)
-              }
+            &nbsp;
+            {(q !== 'all' && q !== '') ||
+            (category !== 'all' && category !== '') ||
+            (price !== 'all' && price !== '') ||
+            (rating !== 'all' && rating !== '') ? (
+              <Button variant={'link'} asChild>
+                <Link href="/search">Clear</Link>
+              </Button>
+            ) : null}
           </div>
           <div>
             {/* {sort} */}
+            Sort by:{' '}
+            {sortBy.map((s) => (
+              <Link
+                key={s}
+                className={`mx-2 ${sort === s && 'font-bold'}`}
+                href={getFilterUrl({ s })}
+              >
+                {s}
+              </Link>
+            ))}
           </div>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
