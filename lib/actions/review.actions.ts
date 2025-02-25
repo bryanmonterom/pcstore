@@ -69,10 +69,32 @@ export async function createAndUpdateReview(
       });
     });
 
-    revalidatePath(`/product/${product.slug}`)
-    return { sucess: true, message: 'Review updated succesfully'};
-
+    revalidatePath(`/product/${product.slug}`);
+    return { success: true, message: 'Review updated succesfully' };
   } catch (error) {
-    return { sucess: false, message: formatError(error) };
+    return { success: false, message: formatError(error) };
   }
+}
+
+export async function getAllReview(productId: string) {
+  const data = await prisma.review.findMany({
+    where: { productId },
+    include: { user: { select: { name: true } } },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return data;
+}
+
+export async function getReviewByProductId({
+  productId,
+}: {
+  productId: string;
+}) {
+  const session = await auth();
+  if (!session) throw new Error('User is not authenticated');
+
+  return await prisma.review.findFirst({
+    where: { productId, userId: session.user.id },
+  });
 }

@@ -2,7 +2,7 @@
 
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { insertReviewSchema } from '../../../../lib/validators';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { reviewFormDefaultValues } from '@/lib/constants';
@@ -27,6 +27,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectValue, SelectTrigger, SelectContent, SelectItem } from '@/components/ui/select';
 import { StarIcon } from 'lucide-react';
+import { z } from 'zod';
+import { createAndUpdateReview } from '@/lib/actions/review.actions';
 
 const ReviewForm = ({
   userId,
@@ -35,7 +37,7 @@ const ReviewForm = ({
 }: {
   userId: string;
   productId: string;
-  onReviewSubmitted?: () => void;
+  onReviewSubmitted: () => void;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -45,11 +47,31 @@ const ReviewForm = ({
     defaultValues: reviewFormDefaultValues,
   });
 
-  const onSubmit = () => {};
+  const onSubmit:SubmitHandler<z.infer<typeof insertReviewSchema>> = async (values) => {
+    const res = await createAndUpdateReview({...values, productId})
+    if(!res.success) {
+        return toast({
+            description: res.message,
+            variant:'destructive'
+        })
+    }
+
+    setOpen(false);
+    onReviewSubmitted();
+    toast({
+        description: res.message,
+        variant:'default'
+    })
+
+
+  };
 
   const handleOpenForm = () => {
+    form.setValue('userId', userId);
+    form.setValue('productId', productId);
     setOpen(true);
   };
+  
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Button onClick={handleOpenForm} variant="default">
