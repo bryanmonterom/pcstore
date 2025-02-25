@@ -28,7 +28,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectValue, SelectTrigger, SelectContent, SelectItem } from '@/components/ui/select';
 import { StarIcon } from 'lucide-react';
 import { z } from 'zod';
-import { createAndUpdateReview } from '@/lib/actions/review.actions';
+import { createAndUpdateReview, getReviewByProductId } from '@/lib/actions/review.actions';
 
 const ReviewForm = ({
   userId,
@@ -62,13 +62,19 @@ const ReviewForm = ({
         description: res.message,
         variant:'default'
     })
-
-
   };
 
-  const handleOpenForm = () => {
+  const handleOpenForm = async () => {
     form.setValue('userId', userId);
     form.setValue('productId', productId);
+
+    const review = await getReviewByProductId({productId});
+    if(review){
+      form.setValue('title', review.title);
+      form.setValue('description', review.description);
+      form.setValue('rating', review.rating);
+    }
+
     setOpen(true);
   };
   
