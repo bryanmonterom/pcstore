@@ -14,11 +14,13 @@ const ReviewList = ({
   productId: string;
   productSlug: string;
 }) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [reviews, setReviews] = useState<Review[]>([]);
 
   const reload = () =>{
     
   }
+
 
   return (
     <div className="space-y-4">

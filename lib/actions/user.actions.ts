@@ -14,7 +14,6 @@ import { prisma } from '@/db/prisma';
 import { formatError } from '../utils';
 import { PaymentMethod, ShippingAddress } from '@/types';
 import { PAGE_SIZE } from '../constants';
-import { flushAllTraces } from 'next/dist/trace';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { Prisma } from '@prisma/client';

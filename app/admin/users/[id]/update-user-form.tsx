@@ -25,7 +25,6 @@ import {
 import { USER_ROLES } from '../../../../lib/constants/index';
 import { Button } from '@/components/ui/button';
 import { updateUser } from '@/lib/actions/user.actions';
-import { Fira_Mono } from 'next/font/google';
 
 const UpdateUserForm = ({
   user,

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { COOKIE_NAMES } from '@/lib/constants';
 import type { NextAuthConfig } from 'next-auth';
 import { NextResponse } from 'next/server';
