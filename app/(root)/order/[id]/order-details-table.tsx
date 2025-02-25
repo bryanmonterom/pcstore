@@ -18,19 +18,27 @@ import {
   PayPalScriptProvider,
   usePayPalScriptReducer,
 } from '@paypal/react-paypal-js';
-import { approvePaypalOrder, createPayPalOrder, deliverOrder, updateOrderToPaidCod } from '@/lib/actions/order.action';
+import {
+  approvePaypalOrder,
+  createPayPalOrder,
+  deliverOrder,
+  updateOrderToPaidCod,
+} from '@/lib/actions/order.action';
 import { useToast } from '@/hooks/use-toast';
 import { useTransition } from 'react';
 import { Button } from '@/components/ui/button';
+import StripePayment from './stripe-payment';
 
 const OrderDetailsTable = ({
   order,
   isAdmin,
   paypalClientId,
+  stripeClientSecret,
 }: {
   order: Omit<Order, 'paymentResult'>;
   isAdmin: boolean;
   paypalClientId: string;
+  stripeClientSecret: string | null;
 }) => {
   const {
     id,
@@ -64,62 +72,74 @@ const OrderDetailsTable = ({
 
   const handleCreatePaypalOrder = async () => {
     const res = await createPayPalOrder(id);
- 
-    if(!res.success){
+
+    if (!res.success) {
       toast({
-        variant:'destructive',
-        description: res.message
-      })
+        variant: 'destructive',
+        description: res.message,
+      });
     }
 
-
     return res.data;
-
   };
 
-  
   const handleApprovePayPalOrder = async (data: { orderID: string }) => {
-      const res = await approvePaypalOrder(order.id, data);
-      toast({
-        variant:res.success ? 'default' : 'destructive',
-        description: res.message
-      })
-
+    const res = await approvePaypalOrder(order.id, data);
+    toast({
+      variant: res.success ? 'default' : 'destructive',
+      description: res.message,
+    });
   };
 
   // createOrder={handleCreatePaypalOrder}
   // onApprove={handleApprovePaypalOrder}
 
   //Button to mark as paid
-  const MarkAsPaidButton = ()=>{
+  const MarkAsPaidButton = () => {
     const [isPending, startTransition] = useTransition();
-    const {toast} = useToast();
+    const { toast } = useToast();
 
-    return <Button type='button' disabled = {isPending} onClick ={()=> startTransition(async () =>{
-      const res = await updateOrderToPaidCod(order.id);
-      toast({
-        variant: res.sucess ? 'default' : 'destructive',
-        description: res.message
-      })
-    })}>
-      {isPending ? 'Processing' : 'Mark as Paid' }
-    </Button>
-  }
+    return (
+      <Button
+        type="button"
+        disabled={isPending}
+        onClick={() =>
+          startTransition(async () => {
+            const res = await updateOrderToPaidCod(order.id);
+            toast({
+              variant: res.sucess ? 'default' : 'destructive',
+              description: res.message,
+            });
+          })
+        }
+      >
+        {isPending ? 'Processing' : 'Mark as Paid'}
+      </Button>
+    );
+  };
 
-  const MarkAsDeliveredButton = ()=>{
+  const MarkAsDeliveredButton = () => {
     const [isPending, startTransition] = useTransition();
-    const {toast} = useToast();
+    const { toast } = useToast();
 
-    return <Button type='button' disabled = {isPending} onClick ={()=> startTransition(async () =>{
-      const res = await deliverOrder(order.id);
-      toast({
-        variant: res.sucess ? 'default' : 'destructive',
-        description: res.message
-      })
-    })}>
-      {isPending ? 'Processing' : 'Mark as Delivered' }
-    </Button>
-  }
+    return (
+      <Button
+        type="button"
+        disabled={isPending}
+        onClick={() =>
+          startTransition(async () => {
+            const res = await deliverOrder(order.id);
+            toast({
+              variant: res.sucess ? 'default' : 'destructive',
+              description: res.message,
+            });
+          })
+        }
+      >
+        {isPending ? 'Processing' : 'Mark as Delivered'}
+      </Button>
+    );
+  };
   return (
     <>
       <h1 className="py-4 text-2xl">Order {formatId(id)}</h1>
@@ -196,8 +216,8 @@ const OrderDetailsTable = ({
             </CardContent>
           </Card>
         </div>
-        <div className='col-span-2 mt-2 md:col-span-1 md:mt-0 sm:col-span-1 sm:mt-0 lg:col-span-1 lg:mt-0'>
-          <Card className='max-w-full'>
+        <div className="col-span-2 mt-2 md:col-span-1 md:mt-0 sm:col-span-1 sm:mt-0 lg:col-span-1 lg:mt-0">
+          <Card className="max-w-full">
             <CardContent className="p-4 gap-4 space-y-4 ">
               <div className="flex justify-between">
                 <div>Items</div>
@@ -229,21 +249,24 @@ const OrderDetailsTable = ({
                 </div>
               )}
 
-              {/*  Cash on delivery*/}
-              {isAdmin && !isPaid && paymentMethod === 'CashOnDelivery' &&(
-                <MarkAsPaidButton>
-
-                </MarkAsPaidButton>
+              {/*Paypal Payment*/}
+              {!isPaid && paymentMethod === 'Stripe' && stripeClientSecret && (
+                <StripePayment
+                  priceInCents={Number(order.totalPrice) * 100}
+                  orderId={order.id}
+                  clientSecret={stripeClientSecret}
+                ></StripePayment>
               )}
 
-              
               {/*  Cash on delivery*/}
-              {isAdmin && isPaid && !isDelivered &&(
-                <MarkAsDeliveredButton>
-                  
-                </MarkAsDeliveredButton>
+              {isAdmin && !isPaid && paymentMethod === 'CashOnDelivery' && (
+                <MarkAsPaidButton></MarkAsPaidButton>
               )}
 
+              {/*  Cash on delivery*/}
+              {isAdmin && isPaid && !isDelivered && (
+                <MarkAsDeliveredButton></MarkAsDeliveredButton>
+              )}
             </CardContent>
           </Card>
         </div>
