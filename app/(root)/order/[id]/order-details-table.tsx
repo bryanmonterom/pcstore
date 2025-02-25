@@ -196,9 +196,9 @@ const OrderDetailsTable = ({
             </CardContent>
           </Card>
         </div>
-        <div>
-          <Card>
-            <CardContent className="p-4 gap-4 space-y-4">
+        <div className='col-span-2 mt-2 md:col-span-1 md:mt-0 sm:col-span-1 sm:mt-0 lg:col-span-1 lg:mt-0'>
+          <Card className='max-w-full'>
+            <CardContent className="p-4 gap-4 space-y-4 ">
               <div className="flex justify-between">
                 <div>Items</div>
                 <div>{formatCurrency(itemsPrice)}</div>
