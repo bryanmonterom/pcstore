@@ -69,7 +69,7 @@ const DealCountDown = () => {
     return (
         <section className="grid grid-cols-1 md:grid-cols-2 my-20">
         <div className="flex flex-col gap-2 justify-center">
-          <h3 className="text-3xl font-bold">Deal of the Month</h3>
+          <h3 className="text-3xl font-bold">Deal has ended</h3>
           <p>
           This deal is no longer available. Check out or latest promotions!
           </p>
