@@ -18,6 +18,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { Prisma } from '@prisma/client';
 import { getMyCart } from './cart.actions';
+import { cookies } from 'next/headers';
 
 //sign in the user with credentials
 export default async function signInWithCredentials(
@@ -44,9 +45,20 @@ export default async function signInWithCredentials(
 
 //Sign out user
 export async function signOutUser() {
-  const currentCart = await getMyCart();
-  if(currentCart) await prisma.cart.delete({ where: { id: currentCart?.id } });
-  await signOut();
+  try {
+    const currentCart = await getMyCart();
+    if (currentCart)
+      await prisma.cart.delete({ where: { id: currentCart?.id } });
+
+    const cookieStore = await cookies();
+    cookieStore.set('authjs.callback-url', '', { expires: new Date(0) });
+    cookieStore.set('authjs.csrf-token', '', { expires: new Date(0) });
+    cookieStore.set('authjs.session-token', '', { expires: new Date(0) });
+    cookieStore.set('sessionCartId', '', { expires: new Date(0) });
+    return { success: true, message: 'Sign out succesfully' };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
+  }
 }
 
 export async function signUpUser(prevState: unknown, formData: FormData) {
@@ -180,26 +192,25 @@ export async function updateUserProfile(user: { name: string; email: string }) {
 export async function getAllUsers({
   limit = PAGE_SIZE,
   page,
-  query
+  query,
 }: {
   limit?: number;
   page: number;
-  query:string
+  query: string;
 }) {
-
   const queryFilter: Prisma.UserWhereInput =
-      query && query !== 'all'
-        ? {
-              name: {
-                contains: query,
-                mode: 'insensitive',
-              } as Prisma.StringFilter,
-          }
-        : {};
+    query && query !== 'all'
+      ? {
+          name: {
+            contains: query,
+            mode: 'insensitive',
+          } as Prisma.StringFilter,
+        }
+      : {};
 
   const data = await prisma.user.findMany({
     orderBy: { createdAt: 'desc' },
-    where:{...queryFilter},
+    where: { ...queryFilter },
     skip: (page - 1) * limit,
   });
 
@@ -227,9 +238,8 @@ export async function updateUser(user: z.infer<typeof updateUserSchema>) {
       where: { id: user.id },
       data: { name: user.name, role: user.role },
     });
-    revalidatePath('/admin/users')
+    revalidatePath('/admin/users');
     return { success: true, message: 'User updates succesfully' };
-
   } catch (error) {
     return { success: false, message: formatError(error) };
   }

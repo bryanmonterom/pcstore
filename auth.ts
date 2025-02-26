@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import NextAuth from 'next-auth';
+import { authConfig } from './app/auth.config';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '@/db/prisma';
-import CredentialsProvider from 'next-auth/providers/credentials';
 import { cookies } from 'next/headers';
 import { compare } from 'bcrypt-ts-edge';
-import { COOKIE_NAMES } from './lib/constants';
-import { authConfig } from './app/auth.config';
+import CredentialsProvider from 'next-auth/providers/credentials';
 
 export const config = {
   pages: {
@@ -57,6 +56,7 @@ export const config = {
     }),
   ],
   callbacks: {
+    ...authConfig.callbacks,
     async session({ session, user, trigger, token }: any) {
       // Set the user ID from the token
       session.user.id = token.sub;
@@ -89,7 +89,7 @@ export const config = {
 
         if (trigger === 'signIn' || trigger === 'signUp') {
           const cookiesObject = await cookies();
-          const sessionCartId = cookiesObject.get(COOKIE_NAMES.SESSION_CART_ID)?.value;
+          const sessionCartId = cookiesObject.get('sessionCartId')?.value;
 
           if (sessionCartId) {
             const sessionCart = await prisma.cart.findFirst({
@@ -112,16 +112,14 @@ export const config = {
         }
       }
 
-
-      // Handle session updates logic
+      // Handle session updates
       if (session?.user.name && trigger === 'update') {
         token.name = session.user.name;
       }
 
       return token;
     },
-    ...authConfig.callbacks
   },
-} 
+};
 
 export const { handlers, auth, signIn, signOut } = NextAuth(config);
