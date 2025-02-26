@@ -87,7 +87,7 @@ export default function PurchaseReceiptEmail ({ order }: { order: Order })  {
                     Purchase Date
                   </Text>
                   <Text className="mt-0 mr-4">
-                    {formatDateTime(order.createdAt).dateTime}
+                    {formatDateTime(order.createdAt).dateOnly}
                   </Text>
                 </Column>
                 <Column>

@@ -3,6 +3,8 @@ import ProductList from '../../components/ui/shared/product/product-list';
 import { getFeaturedProducts, getLatestProducts } from '@/lib/actions/product.actions';
 import ProductCarousel from '@/components/ui/shared/product/product-carousel';
 import ViewAllProducts from '@/components/view-all-products';
+import IconBoxes from '@/components/icon-boxes';
+import DealCountDown from '@/components/deal-countdown';
 
 const HomePage = async () => {
   const latestProducts = await getLatestProducts();
@@ -16,6 +18,8 @@ const HomePage = async () => {
         limit={LATEST_PRODUCTS_LIMIT}
       />
       <ViewAllProducts></ViewAllProducts>
+      <DealCountDown></DealCountDown>
+      <IconBoxes></IconBoxes>
     </>
   );
 };
