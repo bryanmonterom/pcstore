@@ -26,7 +26,6 @@ const AdminOrderPage = async (props: {
   await requireAdmin();
 
   const orders = await getAllOrders({ page: Number(page), query: searchText });
-  console.log(orders);
 
   return (
     <div className="space-y-2 ">

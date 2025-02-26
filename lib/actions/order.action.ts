@@ -67,7 +67,6 @@ export async function createOrder() {
     const inserterOrderId = await prisma.$transaction(async (tx) => {
       const insertedOrder = await tx.order.create({ data: order });
 
-      console.log(insertedOrder);
       for (const item of cart.items as CartItem[]) {
         await tx.orderItem.create({
           data: { ...item, price: item.price, orderId: insertedOrder.id },

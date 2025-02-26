@@ -27,7 +27,6 @@ export const paypal = {
     return handlePaypalResponse(response);
   },
   capturePayment: async function capturePayment(orderId:string){
-    console.log('The order id ' + orderId)
     const accessToken = await generateAccessToken();
     const url = `${base}/v2/checkout/orders/${orderId}/capture`;
 
