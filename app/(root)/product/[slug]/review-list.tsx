@@ -5,7 +5,7 @@ import { Review } from '@/types';
 import Link from 'next/link';
 import { useState } from 'react';
 import ReviewForm from './review-form';
-import { getAllReviews, getReviewByProductId } from '@/lib/actions/review.actions';
+import { getAllReviews } from '@/lib/actions/review.actions';
 import {
   Card,
   CardContent,
